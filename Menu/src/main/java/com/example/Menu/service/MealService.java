@@ -14,6 +14,7 @@ public class MealService {
     public MealService(List<Meal> mealList) {
         this.mealList = new ArrayList<>();
         this.mealList.add(new Meal("hamburger", 100, "This is delicious"));
+        this.mealList.add(new Meal("coke", 60, "It's good to drink"));
     }
 
     public Meal getMealByName(String name) {
