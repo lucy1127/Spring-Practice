@@ -28,6 +28,16 @@ public class OrderService {
         }
         return null;
     }
+    public int getTotal(){
+        int total = 0;
+        for(int i=0;i<this.orderList.size();i++){
+            total += orderList.get(i).getTotalPrice();
+        }
+        return total;
+    }
+    public List<Order> getOrderList(){
+        return this.orderList;
+    }
 
 
 }
