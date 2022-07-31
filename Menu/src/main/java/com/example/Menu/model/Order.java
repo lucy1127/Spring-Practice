@@ -8,6 +8,13 @@ public class Order {
     private String waiter;
     private List<Meal> meals;
 
+
+    public Order(int seq, int totalPrice, String waiter, List<Meal> meals) {
+        this.seq = seq;
+        this.totalPrice = totalPrice;
+        this.waiter = waiter;
+        this.meals = meals;
+    }
     public int getSeq() {
         return seq;
     }
@@ -40,10 +47,5 @@ public class Order {
         this.meals = meals;
     }
 
-    public Order(int seq, int totalPrice, String waiter, List<Meal> meals) {
-        this.seq = seq;
-        this.totalPrice = totalPrice;
-        this.waiter = waiter;
-        this.meals = meals;
-    }
+
 }

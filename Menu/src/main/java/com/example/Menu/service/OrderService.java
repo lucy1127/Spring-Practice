@@ -15,15 +15,19 @@ public class OrderService {
         this.orderList = new ArrayList<>();
         this.mealList = new ArrayList<>();
         this.mealList.add(new Meal("hamburger", 100, "This is delicious"));
+        this.mealList.add(new Meal("coke", 60, "It's good to drink"));
         this.orderList.add(new Order(1, 100, "Bill",this.mealList));
+        this.orderList.add(new Order(2, 200, "Louis",this.mealList));
     }
 
-    public Order getOrderBySeq(int seq) {
+    public Order getOrderById(int seq) {
         for (int i = 0; i < this.orderList.size(); i++) {
-            if (this.orderList.get(i).getSeq()==(seq)) {
+            if (this.orderList.get(i).getSeq()==seq) {
                 return this.orderList.get(i);
             }
         }
         return null;
     }
+
+
 }
