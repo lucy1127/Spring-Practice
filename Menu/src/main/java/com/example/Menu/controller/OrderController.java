@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 
 @Controller
 @RequestMapping(value = "/order")
@@ -19,10 +21,16 @@ public class OrderController {
     OrderService orderService;
 
     @GetMapping("/{seq}")
-    public String getOrderById(@PathVariable int seq, Model model){
+    public String getOrderById(@PathVariable int seq, Model model) {
         Order order = this.orderService.getOrderById(seq);
-        model.addAttribute("order",order);
+        model.addAttribute("order", order);
         return "order";
+    }
+    @GetMapping("/income")
+    public String getIncome(Model model){
+        int total = this.orderService.getIncome();
+        model.addAttribute("income",total);
+        return "income";
     }
 
 }

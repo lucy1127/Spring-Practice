@@ -6,14 +6,13 @@ public class Order {
     private int seq;
     private int totalPrice;
     private String waiter;
-    private List<Meal> meals;
+    private List<Meal> mealList;
 
 
-    public Order(int seq, int totalPrice, String waiter, List<Meal> meals) {
+    public Order(int seq, String waiter, List<Meal> meals) {
         this.seq = seq;
-        this.totalPrice = totalPrice;
         this.waiter = waiter;
-        this.meals = meals;
+        this.mealList = meals;
     }
     public int getSeq() {
         return seq;
@@ -24,6 +23,10 @@ public class Order {
     }
 
     public int getTotalPrice() {
+        int totalPrice = 0;
+        for(Meal meal:this.getMealList()){
+            totalPrice += meal.getPrice();
+        }
         return totalPrice;
     }
 
@@ -39,12 +42,12 @@ public class Order {
         this.waiter = waiter;
     }
 
-    public List<Meal> getMeals() {
-        return meals;
+    public List<Meal> getMealList() {
+        return mealList;
     }
 
-    public void setMeals(List<Meal> meals) {
-        this.meals = meals;
+    public void setMealList(List<Meal> mealList) {
+        this.mealList = mealList;
     }
 
 
