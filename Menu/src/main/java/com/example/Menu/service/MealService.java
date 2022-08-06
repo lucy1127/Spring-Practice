@@ -2,7 +2,6 @@ package com.example.Menu.service;
 
 import com.example.Menu.model.Meal;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ public class MealService {
     public Meal getMealByName(String name) {
         for (int i = 0; i < this.mealList.size(); i++) {
             if (this.mealList.get(i).getName().toLowerCase().equals(name.toLowerCase())) {
-                return this.mealList.get(i);
+                return this.mealList.get(i); //name.toLowerCase().equals(this.mealList.get(i).getName().toLowerCase())
             }
         }
         return null;

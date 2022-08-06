@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 public class MealController {
     @Autowired
-    MealService mealService;
+    private MealService mealService;
 
     @GetMapping()
     public String getMealByName(@RequestParam String name, Model model){

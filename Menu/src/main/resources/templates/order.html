@@ -10,9 +10,9 @@
 <body>
 <h1>Hello World!!</h1>
 <h2 th:text="'單號　:　'+${order.seq}+'價錢 : '+${order.totalPrice} + '服務人員 : '+${order.waiter}"></h2>
-<tr th:each="meals: ${order.meals}">
-<td th:text="'名稱：'+${meals.name}"></td>
-<td th:text="'價錢：'+${meals.price}"></td>
+<tr th:each="meals: ${order.mealList}">
+<td th:text="'名稱：'+${meal.name}"></td>
+<td th:text="'價錢：'+${meal.price}"></td>
 </tr>
 </body>
 </html>
