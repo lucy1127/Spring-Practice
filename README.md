@@ -7,7 +7,7 @@ http://localhost:8080/order/1
 http://localhost:8080/total/all
 
 # HW_0805
-課堂作業 :
+課堂作業 : (restful practice Folder)
 1. 取得所有訂單
 http://localhost:8080/order
 2. 根據ID取得單筆訂單
