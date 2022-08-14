@@ -1,5 +1,6 @@
-package com.example.springrestfulpractice.model;
+package com.example.springrestfulpractice.model.entity;
 
+import com.example.springrestfulpractice.model.Meal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
