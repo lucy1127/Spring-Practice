@@ -15,7 +15,6 @@ import javax.persistence.GenerationType;
 @NoArgsConstructor
 public class CreateMealRequest {
 
-    private int id;
     private String name;
     private Integer price;
 }

@@ -17,7 +17,7 @@ import javax.persistence.*;
 
 public class Meal {
     @Id
-   // @GeneratedValue(strategy = GenerationType.AUTO) //沒有值的時候 自動產生
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //沒有值的時候 自動產生
     private Integer id;
 
     private String name;

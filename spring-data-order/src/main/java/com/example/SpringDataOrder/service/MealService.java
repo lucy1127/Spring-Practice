@@ -33,7 +33,6 @@ public class MealService {
         Meal meal = new Meal();
 
         if(request.getName() != null && request.getPrice() != null) {
-            meal.setId(request.getId());
             meal.setName(request.getName());
             meal.setPrice(request.getPrice());
         }else{
