@@ -130,7 +130,7 @@ public class UserService {
     public List<String> getNoRepeatUser(){
         List<User> response = userRepository.findAll();
 
-        List<String> newResponse = response.stream().map(User::getName).distinct().collect(Collectors.toList());
+        List<String> newResponse = response.stream().map(User::getName).distinct().sorted().collect(Collectors.toList());
         return newResponse;
     }
     public Map<Integer,String> getMap(){
@@ -156,7 +156,7 @@ public class UserService {
     }
     public String getAllByString() {
         String userList = "";
-        userList += userRepository.findAll().stream().map(p -> p.getName() + "," + p.getAge()).collect(Collectors.joining("|"));
+        userList = userRepository.findAll().stream().map(p -> p.getName() + "," + p.getAge()).collect(Collectors.joining("|"));
         return userList;
     }
 
