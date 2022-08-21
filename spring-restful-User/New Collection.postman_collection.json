@@ -1,0 +1,114 @@
+{
+	"info": {
+		"_postman_id": "a2faa2f9-4e6e-4a11-965c-07df75850365",
+		"name": "New Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22635222"
+	},
+	"item": [
+		{
+			"name": "getAllBy",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\":\"wow\",\r\n    \"age\":18\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/part4/user/getAllBy",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"part4",
+						"user",
+						"getAllBy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOrderBy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/part4/user/getOrderBy",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"part4",
+						"user",
+						"getOrderBy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getFirst",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/part4/user/getFirst",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"part4",
+						"user",
+						"getFirst"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOne",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/part4/user/getOne",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"part4",
+						"user",
+						"getOne"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getNoRepeatUser",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
