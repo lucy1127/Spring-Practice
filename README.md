@@ -57,3 +57,28 @@ Order :
   http://localhost:8080/order/:id
   5. 修改Order
   http://localhost:8080/order/:id
+# HW_0819
+回家作業 : (HW_0823 Folder)
+* [User][1] (需執行 npm install)
+ 
+    [1]:https://github.com/lucy1127/Spring-Practice/tree/main/HW_0823
+
+    ![](https://i.imgur.com/YKCjIOW.png)
+    * List Users
+        * 列出所有使用者
+    ![](https://i.imgur.com/VZVylrW.png)
+    * Add User
+        * 新增 Lucy 的資料
+    ![](https://i.imgur.com/hZh03rj.png)
+        * 完成
+    ![](https://i.imgur.com/h51O69T.png)
+    * Update User
+        * 更新 Bill 的資料
+    ![](https://i.imgur.com/JKJny95.png)
+        * 更改為 lulu
+    ![](https://i.imgur.com/J2XAnEm.png)
+        * 完成
+    ![](https://i.imgur.com/kG0RR4d.png)
+    * Delete User
+        *    刪除第一筆資料
+    ![](https://i.imgur.com/mhTxZkF.png)
