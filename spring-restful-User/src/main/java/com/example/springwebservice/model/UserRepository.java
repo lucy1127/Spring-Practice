@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
-public interface UserRepository extends JpaRepository<User,Integer> {
+    public interface UserRepository extends JpaRepository<User,Integer> {
     User findById(int id);
 
     Long deleteById(int id);
