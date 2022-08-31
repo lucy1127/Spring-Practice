@@ -28,10 +28,7 @@ public class TcnudService {
     }
     public String upDateTchud(String type,String stock,double price,int qty){
         Tcnud tcnud = tcnudRepository.findByStock(stock);
-
-        if(null == tcnud){
-            return "FAIL";
-        }
+        
 
         if(type.equals("B")||type.equals("b")){
             double addPrice; //成本 當時股價*股數+現買股價*股數/總股數
