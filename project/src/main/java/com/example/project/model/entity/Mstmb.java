@@ -32,13 +32,13 @@ public class Mstmb {
     private String marketType;
 
     @Column(name="CurPrice")
-    private int curPrice;
+    private double curPrice;
 
     @Column(name="RefPrice")
-    private int refPrice;
+    private Double refPrice;
 
     @Column(name="Currency")
-    private String currency;
+    private String currency = "台幣";
 
     @Column(name="ModDate")
     private String modDate;

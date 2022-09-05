@@ -2,7 +2,6 @@ package com.example.project.service;
 
 
 import com.example.project.controller.dto.request.CreateHcmioRequest;
-import com.example.project.controller.dto.request.UpdateTcnudRequest;
 import com.example.project.model.HcmioRepository;
 import com.example.project.model.TcnudRepository;
 import com.example.project.model.entity.Hcmio;
@@ -22,7 +21,6 @@ public class HcmioService {
     private HcmioRepository hcmioRepository;
     @Autowired
     private TcnudRepository tcnudRepository;
-
     @Autowired
     private TcnudService tcnudService;
 
@@ -30,12 +28,15 @@ public class HcmioService {
         return hcmioRepository.findAll();
     }
 
-    public List<Hcmio> getDataByDocSeq(String date,String branch,String cust,String doc){
-        return hcmioRepository.find(date,branch,cust,doc);
+    public List<Hcmio> getDataByDocSeq(String date,String branch,String custSeq,String doc){
+        return hcmioRepository.find(date,branch,custSeq,doc);
     }
-
     public String createHcmio(CreateHcmioRequest request){
 
+        if(request.getTradeDate().isEmpty() || request.getDocSeq().isEmpty() || request.getStock().isEmpty()
+                ||request.getBsType().isEmpty() || request.getPrice().isNaN()||request.getQty() < 0){
+            return "Something wrong...or lost... Check it again...";
+        }
         //hcmio
         Hcmio hcmio = new Hcmio();
         hcmio.setTradeDate(request.getTradeDate());
@@ -45,25 +46,22 @@ public class HcmioService {
         hcmio.setPrice(request.getPrice());
         hcmio.setQty(request.getQty());
 
-        int qty;
-        double amt,price,fee,tax;
-        price = request.getPrice();
-        qty = request.getQty();
-        amt = Math.round(price * qty);
-        fee = Math.round(amt * 0.001425);
-        tax = Math.round(amt * 0.003);
+        double amt,fee,tax,netAmt;
+        amt = Math.floor(request.getPrice() * request.getQty());
+        fee = Math.floor(amt * 0.001425);
 
-        double netAmt;
         if(request.getBsType().equals("B")){
             netAmt = -(amt+fee);
         }else{
+            tax = Math.floor(amt * 0.003);
+            hcmio.setTax(tax);
+
             netAmt = amt-fee-tax;
         }
 
         //hcmio
         hcmio.setAmt(amt);
         hcmio.setFee(fee);
-        hcmio.setTax(tax);
         hcmio.setNetAmt(netAmt);
 
         LocalDate localDate = Instant.now().atZone(ZoneOffset.ofHours(+8)).toLocalDate();
@@ -76,30 +74,26 @@ public class HcmioService {
 
 
         if(null != tcnudRepository.findByStock(request.getStock())){ //找到相同的股票
-            String oldTcund = this.tcnudService.upDateTchud(request.getBsType(),request.getStock(),request.getPrice(),request.getQty());
+            if(request.getBsType().equals("S") || request.getBsType().equals("s")){
+                Tcnud check = tcnudRepository.findByStock(request.getStock());
+                if(check.getRemainQty() < request.getQty()){
+                    return "RemainQty is not enough to sold...";
+                }
+            }
+
+            this.tcnudService.upDateTchud(request.getBsType(),request.getStock(),request.getPrice(),request.getQty());
 
         }else{
-            //tcnud
-            Tcnud tcnud = new Tcnud();
-            tcnud.setTradeDate(request.getTradeDate());
-            tcnud.setDocSeq(request.getDocSeq());
-            tcnud.setStock(request.getStock());
-            tcnud.setPrice(request.getPrice());
-            tcnud.setFee(fee);
-            tcnud.setQty(request.getQty());
-            tcnud.setRemainQty(request.getQty()); //剩餘股數
-            tcnud.setCost(netAmt);
-
-            tcnud.setModDate(formattedDate);
-            tcnud.setModTime(formattedTime);
-            tcnudRepository.save(tcnud);
+            if(request.getBsType().equals("S") || request.getBsType().equals("s")){
+                return "You don't have this stock...";
+            }
+            this.tcnudService.createTchud(hcmio);
         }
 
         hcmioRepository.save(hcmio);
-
         return "Create Success";
-
     }
+
     @Transactional
     public String deleteHcmio(String docSeq){
         hcmioRepository.deleteByDocSeq(docSeq);

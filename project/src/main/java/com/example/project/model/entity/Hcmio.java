@@ -45,10 +45,10 @@ public class Hcmio implements Serializable {
     private String bsType;//買賣型態 B買S賣
 
     @Column(name="Price")
-    private double price; //單價
+    private Double price; //單價
 
     @Column(name="Qty")
-    private int qty;//股數
+    private Integer qty;//股數
 
     @Column(name="Amt")
     private double amt;//價金

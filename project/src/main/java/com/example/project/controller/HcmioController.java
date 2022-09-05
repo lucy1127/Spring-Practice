@@ -20,27 +20,25 @@ public class HcmioController {
     HcmioService hcmioService;
 
     @GetMapping()
-    public List<Hcmio> getDataList(){
-        List<Hcmio> dataList = this.hcmioService.getHcmioList();
-        return dataList;
+    public List<Hcmio> getHcmioDataList(){
+        return this.hcmioService.getHcmioList();
     }
 
     @GetMapping("/date/branch/cust/{doc}")
-    public List<Hcmio> getData(@RequestParam String date,@RequestParam String branch,@RequestParam String cust,@PathVariable String doc){
-        List<Hcmio> data = this.hcmioService.getDataByDocSeq(date,branch,cust,doc);
-        return data;
+    public List<Hcmio> getHcmioData(@RequestParam String date,@RequestParam String branch,@RequestParam String cust,@PathVariable String doc){
+        return this.hcmioService.getDataByDocSeq(date,branch,cust,doc);
     }
 
     @PostMapping()
-    public StatusResponse createData(@RequestBody CreateHcmioRequest request) {
-        String userCreate = this.hcmioService.createHcmio(request);
-        return new StatusResponse(userCreate);
+    public StatusResponse createHcmioData(@RequestBody CreateHcmioRequest request) {
+        String result = this.hcmioService.createHcmio(request);
+        return new StatusResponse(result);
     }
 
     @DeleteMapping("/{docSeq}")
-    public StatusResponse deleteData(@PathVariable String docSeq) {
-        String userDelete = this.hcmioService.deleteHcmio(docSeq);
-        return new StatusResponse(userDelete);
+    public StatusResponse deleteHcmioData(@PathVariable String docSeq) {
+        String result = this.hcmioService.deleteHcmio(docSeq);
+        return new StatusResponse(result);
     }
 
 

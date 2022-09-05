@@ -1,8 +1,6 @@
 package com.example.project.controller;
 
-import com.example.project.controller.dto.request.UpdateTcnudRequest;
 import com.example.project.controller.dto.resopnse.StatusResponse;
-import com.example.project.model.entity.Hcmio;
 import com.example.project.model.entity.Tcnud;
 import com.example.project.service.TcnudService;
 import org.springframework.beans.factory.annotation.Autowired;

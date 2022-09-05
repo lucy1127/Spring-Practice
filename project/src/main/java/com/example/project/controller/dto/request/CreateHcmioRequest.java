@@ -15,7 +15,7 @@ public class CreateHcmioRequest {
     private String docSeq;
     private String stock;
     private String bsType;
-    private double price;
-    private int qty;
+    private Double price;
+    private Integer qty;
 
 }

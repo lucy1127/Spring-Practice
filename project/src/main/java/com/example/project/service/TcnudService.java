@@ -1,8 +1,8 @@
 package com.example.project.service;
 
 
-import com.example.project.controller.dto.request.UpdateTcnudRequest;
 import com.example.project.model.TcnudRepository;
+import com.example.project.model.entity.Hcmio;
 import com.example.project.model.entity.Tcnud;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,10 +26,39 @@ public class TcnudService {
     public List<Tcnud> getDataByDocSeq(String date, String branch, String cust, String doc){
         return tcnudRepository.find(date,branch,cust,doc);
     }
-    public String upDateTchud(String type,String stock,double price,int qty){
-        Tcnud tcnud = tcnudRepository.findByStock(stock);
-        
+    public void createTchud(Hcmio hcmio){
+        Tcnud tcnud = new Tcnud();
+        tcnud.setTradeDate(hcmio.getTradeDate());
+        tcnud.setDocSeq(hcmio.getDocSeq());
+        tcnud.setStock(hcmio.getStock());
+        tcnud.setPrice(hcmio.getPrice());
 
+        double amt,fee;
+        amt = Math.floor(hcmio.getPrice() * hcmio.getQty());
+        fee = Math.floor(amt * 0.001425);
+
+        double cost;
+        cost = amt+fee;
+
+        tcnud.setFee(fee);
+        tcnud.setQty(hcmio.getQty());
+        tcnud.setRemainQty(hcmio.getQty()); //剩餘股數
+        tcnud.setCost(cost);
+
+        LocalDate localDate = Instant.now().atZone(ZoneOffset.ofHours(+8)).toLocalDate();
+        String formattedDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        LocalTime localTime = Instant.now().atZone(ZoneOffset.ofHours(+8)).toLocalTime();
+        String formattedTime = localTime.format(DateTimeFormatter.ofPattern("HHmmss"));
+
+
+        tcnud.setModDate(formattedDate);
+        tcnud.setModTime(formattedTime);
+        tcnudRepository.save(tcnud);
+    }
+    public void upDateTchud(String type, String stock, double price, int qty){
+        Tcnud tcnud = tcnudRepository.findByStock(stock);
+
+        double amt;
         if(type.equals("B")||type.equals("b")){
             double addPrice; //成本 當時股價*股數+現買股價*股數/總股數
             addPrice =  (tcnud.getPrice()*tcnud.getQty() + price*qty) / (tcnud.getQty() +qty);
@@ -39,29 +68,24 @@ public class TcnudService {
             tcnud.setQty(addQty);
             tcnud.setRemainQty(addQty);
 
-            double amt,fee,cost;
             amt = addPrice * addQty;
-            fee = Math.round(amt*0.001425);
-            cost = amt +fee;
 
-            tcnud.setFee(fee);
-            tcnud.setCost(cost);
+            tcnud.setFee(Math.floor(amt*0.001425));
+            tcnud.setCost(amt+Math.floor(amt*0.001425));
 
         }else if(type.equals("S")||type.equals("s")){
             int reduceQty;
             reduceQty = tcnud.getQty() - qty;
+
             tcnud.setRemainQty(reduceQty);
-
-            double amt,fee,cost;
             amt = tcnud.getPrice() * reduceQty;
-            fee = Math.round(amt*0.001425);
-            cost = amt +fee;
 
-            tcnud.setFee(fee);
-            tcnud.setCost(cost);
+            tcnud.setFee(Math.floor(amt*0.001425));
+            tcnud.setCost(amt +Math.floor(amt*0.001425));
 
-        }else{
-            return "Type is not correct";
+            if(reduceQty == 0) {
+                tcnudRepository.deleteByStock(stock);
+            }
         }
 
         LocalDate localDate = Instant.now().atZone(ZoneOffset.ofHours(+8)).toLocalDate();
@@ -72,13 +96,13 @@ public class TcnudService {
         tcnud.setModTime(formattedTime);
 
         tcnudRepository.save(tcnud);
-        return "OK";
     }
-    @Transactional
-    public String deleteTcnud(String docSeq){
-        tcnudRepository.deleteByDocSeq(docSeq);
-        return "Delete Success";
-    }
+
+//    @Transactional
+//    public String deleteTcnud(String docSeq){
+//        tcnudRepository.deleteByDocSeq(docSeq);
+//        return "Delete Success";
+//    }
 
 
 }

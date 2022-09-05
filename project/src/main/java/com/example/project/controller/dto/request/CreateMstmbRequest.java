@@ -10,8 +10,18 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateTcnudRequest {
-    private double price;
-    private int qty;
-    private int remainQty;
+public class CreateMstmbRequest {
+
+    private String stock;
+
+    private String stockName;
+
+    private String marketType;
+
+    private double curPrice;
+
+    private String currency;
 }
+
+
+
