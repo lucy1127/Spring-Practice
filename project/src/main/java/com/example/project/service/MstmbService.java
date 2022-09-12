@@ -6,8 +6,9 @@ import com.example.project.model.MstmbRepository;
 import com.example.project.model.entity.Mstmb;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -22,21 +23,7 @@ public class MstmbService {
     private MstmbRepository mstmbRepository;
 
     public List<Mstmb> getMstmbList(){
-        for(Mstmb mstmb:mstmbRepository.findAll()){
-            double price = Math.floor((Math.random()*mstmb.getCurPrice() + 20));
-            mstmb.setCurPrice(price);
-            mstmbRepository.save(mstmb);
-        }
         return mstmbRepository.findAll();
-    }
-
-    public List<Mstmb> getDataByStock(String stock){
-        for(Mstmb mstmb:mstmbRepository.findByStock(stock)){
-            double price = Math.floor((Math.random()*mstmb.getCurPrice() + 20));
-            mstmb.setCurPrice(price);
-            mstmbRepository.save(mstmb);
-        }
-        return mstmbRepository.findByStock(stock);
     }
 
     public String createMstmb(CreateMstmbRequest request){
@@ -64,7 +51,8 @@ public class MstmbService {
                 return "Type is not correct";
         }
 
-        mstmb.setCurPrice(makeCurPrice());
+        mstmb.setNowPrice(makeCurPrice());
+
 
         LocalDate localDate = Instant.now().atZone(ZoneOffset.ofHours(+8)).toLocalDate();
         String formattedDate = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -78,17 +66,11 @@ public class MstmbService {
 
         return "Create Success";
     }
-    public Double makeCurPrice(){
-        int min = 10;
-        int max = 500;
-        return Math.floor(Math.random()*(max-min+1)+min);
-    }
-    @Transactional
-    public String deleteMstmb(String stock){
-        mstmbRepository.deleteByStock(stock);
-        return "Delete Success";
-    }
+    public double makeCurPrice(){
+        double min = 10.99;
+        double max = 500.99;
 
-
+        return Math.round(Math.random()*(max-min+1)+min*100.0)/100.0;
+    }
 
 }

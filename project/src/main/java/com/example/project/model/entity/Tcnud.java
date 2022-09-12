@@ -40,7 +40,7 @@ public class Tcnud implements Serializable {
 
 
     @Column(name="Price")
-    private double price; //單價
+    private double buyPrice; //單價
 
     @Column(name="Qty")
     private int qty;//股數

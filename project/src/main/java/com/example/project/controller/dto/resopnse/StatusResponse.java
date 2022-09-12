@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class StatusResponse {
-    private String status;
+    private String response;
 }

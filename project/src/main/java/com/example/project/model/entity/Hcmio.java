@@ -27,17 +27,16 @@ public class Hcmio implements Serializable {
 
     @Id
     @Column(name="BranchNo")
-    private String branchNo = "F62Z"; //分公司代號
+    private String branchNo; //分公司代號
 
     @Id
     @Column(name="CustSeq")
-    private String custSeq = "04"; //客戶帳號
+    private String custSeq; //客戶帳號
 
     @Id
     @Column(name="DocSeq")
     private String docSeq; //委託書號
 
-   //@ManyToOne(cascade = CascadeType.ALL)//有所有關聯操作的權限
     @Column(name="Stock")
     private String stock;//股票代號
 
@@ -45,7 +44,7 @@ public class Hcmio implements Serializable {
     private String bsType;//買賣型態 B買S賣
 
     @Column(name="Price")
-    private Double price; //單價
+    private Double buyPrice; //單價
 
     @Column(name="Qty")
     private Integer qty;//股數

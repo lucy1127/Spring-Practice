@@ -9,13 +9,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateHcmioRequest {
-
+public class AddBalanceRequest {
+    private String branchNo;
+    private String custSeq;
     private String tradeDate;
-    private String docSeq;
     private String stock;
-    private String bsType;
-    private Double price;
+    private Double buyPrice;
     private Integer qty;
-
 }

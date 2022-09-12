@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -32,7 +33,7 @@ public class Mstmb {
     private String marketType;
 
     @Column(name="CurPrice")
-    private double curPrice;
+    private Double nowPrice;
 
     @Column(name="RefPrice")
     private Double refPrice;
