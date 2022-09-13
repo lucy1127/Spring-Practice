@@ -1,65 +1,45 @@
 package com.example.project.service;
 
 
-import com.example.project.controller.dto.request.CreateHcmioRequest;
+import com.example.project.controller.dto.request.AddBalanceRequest;
 import com.example.project.model.HcmioRepository;
-import com.example.project.model.TcnudRepository;
 import com.example.project.model.entity.Hcmio;
-import com.example.project.model.entity.Tcnud;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @Service
 public class HcmioService {
 
     @Autowired //將該元件初始化後自動帶入
     private HcmioRepository hcmioRepository;
-    @Autowired
-    private TcnudRepository tcnudRepository;
-    @Autowired
-    private TcnudService tcnudService;
 
-    public List<Hcmio> getHcmioList(){
-        return hcmioRepository.findAll();
-    }
+    @Transactional
+    public Hcmio createHcmio(AddBalanceRequest request){
 
-    public List<Hcmio> getDataByDocSeq(String date,String branch,String custSeq,String doc){
-        return hcmioRepository.find(date,branch,custSeq,doc);
-    }
-    public String createHcmio(CreateHcmioRequest request){
-
-        if(request.getTradeDate().isEmpty() || request.getDocSeq().isEmpty() || request.getStock().isEmpty()
-                ||request.getBsType().isEmpty() || request.getPrice().isNaN()||request.getQty() < 0){
-            return "Something wrong...or lost... Check it again...";
-        }
         //hcmio
         Hcmio hcmio = new Hcmio();
         hcmio.setTradeDate(request.getTradeDate());
-        hcmio.setDocSeq(request.getDocSeq());
+        hcmio.setBranchNo(request.getBranchNo());
+        hcmio.setCustSeq(request.getCustSeq());
+        hcmio.setDocSeq(createDocSeq());
         hcmio.setStock(request.getStock());
-        hcmio.setBsType(request.getBsType());
-        hcmio.setPrice(request.getPrice());
+        hcmio.setBsType("B");
+        hcmio.setBuyPrice(request.getBuyPrice());
         hcmio.setQty(request.getQty());
 
-        double amt,fee,tax,netAmt;
-        amt = Math.floor(request.getPrice() * request.getQty());
+
+        int qty;
+        double price,amt,fee,tax,netAmt = 0;
+        price = request.getBuyPrice();
+        qty = request.getQty();
+        amt = Math.floor(price * qty);
         fee = Math.floor(amt * 0.001425);
+        netAmt = -(amt+fee);
 
-        if(request.getBsType().equals("B")){
-            netAmt = -(amt+fee);
-        }else{
-            tax = Math.floor(amt * 0.003);
-            hcmio.setTax(tax);
-
-            netAmt = amt-fee-tax;
-        }
-
-        //hcmio
         hcmio.setAmt(amt);
         hcmio.setFee(fee);
         hcmio.setNetAmt(netAmt);
@@ -71,33 +51,41 @@ public class HcmioService {
 
         hcmio.setModDate(formattedDate);
         hcmio.setModTime(formattedTime);
+        hcmioRepository.save(hcmio);
 
-
-        if(null != tcnudRepository.findByStock(request.getStock())){ //找到相同的股票
-            if(request.getBsType().equals("S") || request.getBsType().equals("s")){
-                Tcnud check = tcnudRepository.findByStock(request.getStock());
-                if(check.getRemainQty() < request.getQty()){
-                    return "RemainQty is not enough to sold...";
-                }
-            }
-
-            this.tcnudService.upDateTchud(request.getBsType(),request.getStock(),request.getPrice(),request.getQty());
-
-        }else{
-            if(request.getBsType().equals("S") || request.getBsType().equals("s")){
-                return "You don't have this stock...";
-            }
-            this.tcnudService.createTchud(hcmio);
+        return hcmio;
+    }
+    private String createDocSeq(){
+        Hcmio latestDocSeq = hcmioRepository.findFirstByOrderByDocSeqDesc();
+        if(latestDocSeq == null) {
+            return "AA000";
+        }
+        if(latestDocSeq.getDocSeq().equals("ZZ999")){
+            return "Maximum storage space reached....";
         }
 
-        hcmioRepository.save(hcmio);
-        return "Create Success";
+        int seq = docSeqToInt(String.valueOf(latestDocSeq.getDocSeq()));
+        String newDocSeq = intToDocSeq(seq + 1);
+
+        return newDocSeq;
+
+    }
+    private static int docSeqToInt(String docSeq) {
+        String letter = docSeq.substring(0, 2);
+        String number = docSeq.substring(2);
+
+        return (letter.charAt(0) - 'A') * 26 * 1000 + (letter.charAt(1) - 'A') * 1000 +
+                Integer.parseInt(number);
+
+    }
+    private static String intToDocSeq(int seq) {
+        String number = String.format("%03d", seq % 1000);
+        char firstLetter = (char) ((seq / 1000 / 26) + 'A');
+        char secondLetter = (char) ((seq / 1000 % 26) + 'A');
+        String letter = "" + firstLetter + secondLetter;
+
+        return letter + number;
     }
 
-    @Transactional
-    public String deleteHcmio(String docSeq){
-        hcmioRepository.deleteByDocSeq(docSeq);
-        return "Delete Success";
-    }
 
 }

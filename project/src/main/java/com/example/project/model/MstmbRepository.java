@@ -8,7 +8,5 @@ import java.util.List;
 
 @Repository
 public interface MstmbRepository extends JpaRepository<Mstmb,String> {
-
-    List<Mstmb> findByStock(String stock);
-    Long deleteByStock(String stock);
+    Mstmb findByStock(String stock);
 }

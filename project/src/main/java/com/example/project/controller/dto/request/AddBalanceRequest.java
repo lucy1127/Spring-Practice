@@ -1,6 +1,5 @@
 package com.example.project.controller.dto.request;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,15 +9,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
-public class CreateMstmbRequest {
-
+public class AddBalanceRequest {
+    private String branchNo;
+    private String custSeq;
+    private String tradeDate;
     private String stock;
-    private String stockName;
-    private String marketType;
-    private double curPrice;
-    private String currency;
+    private Double buyPrice;
+    private Integer qty;
 }
-
-
-

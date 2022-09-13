@@ -5,17 +5,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateHcmioRequest {
+public class UnrealizedRequest implements Serializable {
 
-    private String tradeDate;
-    private String docSeq;
+    private String branchNo;
+    private String custSeq;
     private String stock;
-    private String bsType;
-    private Double price;
-    private Integer qty;
 
+    private double minProfit;
+    private double maxProfit;
 }
