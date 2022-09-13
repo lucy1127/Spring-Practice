@@ -8,13 +8,11 @@ import com.example.project.controller.dto.resopnse.UnrealizedDetailResponse;
 import com.example.project.controller.error.InvalidPropertiesFormatException;
 import com.example.project.controller.error.MstmbNotFoundException;
 import com.example.project.controller.error.TcnudNotFoundException;
-import com.example.project.service.TcnudService;
 import com.example.project.service.TransactionService;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -54,7 +52,6 @@ public class TransactionController {
         return response;
     }
 
-    // TODO: change sum data logic
     @PostMapping("/sum")
     public SumUnrealizedProfit getSumData(@RequestBody UnrealizedRequest request) {
         if (!checkParameter(request).equals("Ok")) {

@@ -5,7 +5,6 @@ import com.example.project.controller.dto.request.AddBalanceRequest;
 import com.example.project.controller.dto.request.UnrealizedRequest;
 import com.example.project.controller.dto.resopnse.SumUnrealizedProfit;
 import com.example.project.controller.dto.resopnse.UnrealizedDetail;
-import com.example.project.controller.dto.resopnse.UnrealizedDetailResponse;
 import com.example.project.controller.dto.resopnse.UnrealizedProfit;
 import com.example.project.controller.error.MstmbNotFoundException;
 import com.example.project.controller.error.TcnudNotFoundException;
@@ -15,14 +14,13 @@ import com.example.project.model.entity.Hcmio;
 import com.example.project.model.entity.Mstmb;
 import com.example.project.model.entity.Tcnud;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.InvalidPropertiesFormatException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -126,39 +124,49 @@ public class TransactionService {
     }
 
     public SumUnrealizedProfit sumProfit(UnrealizedRequest request) throws TcnudNotFoundException, MstmbNotFoundException {        
-        List<UnrealizedDetail> detailList = getDetail(request);
+        Map<String, List<UnrealizedDetail>> detailMap = getDetail(request).stream().collect(
+            Collectors.groupingBy(UnrealizedDetail::getStock)
+        );
 
-        Mstmb dataInMstmb = mstmbRepository.findByStock(request.getStock());
-        if (dataInMstmb == null) {
-            throw new MstmbNotFoundException();
-            // return new SumUnrealizedProfit(null, "001", "查無符合資料");
+        List<UnrealizedProfit> results = new ArrayList<>();
+
+        for (Map.Entry<String, List<UnrealizedDetail>> entry : detailMap.entrySet()) {
+            String stock = entry.getKey();
+            List<UnrealizedDetail> stockDetail = entry.getValue();
+
+            Mstmb dataInMstmb = mstmbRepository.findByStock(stock);
+            
+            // 待討論....
+            if (dataInMstmb == null) {
+                continue;
+            }
+
+            double sumFee = 0, sumCost = 0, sumMarketValue = 0, sumUnrealProfit = 0;
+            int sumRemainQty = 0;
+    
+            for (UnrealizedDetail data : stockDetail) {
+                sumRemainQty += data.getRemainQty();
+                sumFee += data.getFee();
+                sumCost += data.getCost();
+                sumMarketValue += data.getMarketValue();
+                sumUnrealProfit += data.getUnrealProfit();
+            }
+    
+            UnrealizedProfit result = new UnrealizedProfit();
+    
+            result.setStock(request.getStock());
+            result.setStockName(dataInMstmb.getStockName());
+            result.setNowPrice(dataInMstmb.getNowPrice());
+            result.setSumRemainQty(sumRemainQty);
+            result.setSumFee(sumFee);
+            result.setSumCost(sumCost);
+            result.setSumMarketValue(sumMarketValue);
+            result.setSumUnrealProfit(sumUnrealProfit);
+            result.setDetailList(stockDetail);
+            result.setSumProfitability(getProfitability(result.getSumUnrealProfit(),result.getSumCost()));
+    
+            results.add(result);
         }
-
-        double sumFee = 0, sumCost = 0, sumMarketValue = 0, sumUnrealProfit = 0;
-        int sumRemainQty = 0;
-
-        for (UnrealizedDetail data : detailList) {
-            sumRemainQty += data.getRemainQty();
-            sumFee += data.getFee();
-            sumCost += data.getCost();
-            sumMarketValue += data.getMarketValue();
-            sumUnrealProfit += data.getUnrealProfit();
-        }
-
-        UnrealizedProfit result = new UnrealizedProfit();
-
-        result.setStock(request.getStock());
-        result.setStockName(dataInMstmb.getStockName());
-        result.setNowPrice(dataInMstmb.getNowPrice());
-        result.setSumRemainQty(sumRemainQty);
-        result.setSumFee(sumFee);
-        result.setSumCost(sumCost);
-        result.setSumMarketValue(sumMarketValue);
-        result.setSumUnrealProfit(sumUnrealProfit);
-        result.setDetailList(detailList);
-        result.setSumProfitability(getProfitability(result.getSumUnrealProfit(),result.getSumCost()));
-
-        List<UnrealizedProfit> results = Arrays.asList(result);
 
         return new SumUnrealizedProfit(results, "000", "");
     }
