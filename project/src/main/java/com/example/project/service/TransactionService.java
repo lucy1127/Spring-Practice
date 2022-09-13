@@ -7,6 +7,8 @@ import com.example.project.controller.dto.resopnse.SumUnrealizedProfit;
 import com.example.project.controller.dto.resopnse.UnrealizedDetail;
 import com.example.project.controller.dto.resopnse.UnrealizedDetailResponse;
 import com.example.project.controller.dto.resopnse.UnrealizedProfit;
+import com.example.project.controller.error.MstmbNotFoundException;
+import com.example.project.controller.error.TcnudNotFoundException;
 import com.example.project.model.MstmbRepository;
 import com.example.project.model.TcnudRepository;
 import com.example.project.model.entity.Hcmio;
@@ -35,18 +37,15 @@ public class TransactionService {
     private MstmbRepository mstmbRepository;
 
 
-    public UnrealizedDetailResponse addBalance(AddBalanceRequest request) {
+    public List<UnrealizedDetail> addBalance(AddBalanceRequest request) {
 
         Mstmb dataInMstmb = mstmbRepository.findByStock(request.getStock());
         if (dataInMstmb == null) {
-            return new UnrealizedDetailResponse(null, "001", "查無符合資料");
+            throw new MstmbNotFoundException();
         }
-        if (!checkRequestParameter(request).equals("Ok")) {
-            return new UnrealizedDetailResponse(null, "002", checkRequestParameter(request));
-        }
+        
         Hcmio hcmio = hcmioService.createHcmio(request);
         Tcnud tcnud = tcnudService.createTchud(hcmio);
-
 
         List<UnrealizedDetail> results = new ArrayList<>();
         results.add(new UnrealizedDetail(
@@ -67,33 +66,34 @@ public class TransactionService {
                 getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), tcnud.getQty(), tcnud.getCost()),tcnud.getCost())
         ));
 
-        return new UnrealizedDetailResponse(results, "000", "");
+        return results;
     }
 
-    public List<UnrealizedDetail> getDetailList(UnrealizedRequest request) throws InvalidPropertiesFormatException, ChangeSetPersister.NotFoundException {
-        Mstmb dataInMstmb = mstmbRepository.findByStock(request.getStock());
-
-        if (!checkParameter(request).equals("Ok")) {
-            throw new InvalidPropertiesFormatException(checkParameter(request));
+    public List<UnrealizedDetail> getDetailList(String branchNo, String custSeq, String minProfit, String maxProfit) {
+        List<Tcnud> dataList = tcnudRepository.findByBranchNoAndCustSeq(branchNo, custSeq);
+        if(dataList.isEmpty()) {
+            throw new TcnudNotFoundException();
         }
 
+        return tcnudListToDetail(dataList, minProfit, maxProfit);
+    }
 
-        List<Tcnud> dataList;
-        if (null == request.getStock()) {
-            dataList = tcnudRepository.findByBranchNoAndCustSeq(request.getBranchNo(), request.getCustSeq());
-        } else {
-            if (null == dataInMstmb) {
-                throw new ChangeSetPersister.NotFoundException();
-            }
-            dataList = tcnudRepository.findByBranchNoAndCustSeqAndStock(request.getBranchNo(), request.getCustSeq(), request.getStock());
+    public List<UnrealizedDetail> getDetailList(String branchNo, String custSeq, String stock, String minProfit, String maxProfit) {
+        List<Tcnud> dataList = tcnudRepository.findByBranchNoAndCustSeqAndStock(branchNo, custSeq, stock);
+        if(dataList.isEmpty()) {
+            throw new TcnudNotFoundException();
         }
+        
+        return tcnudListToDetail(dataList, minProfit, maxProfit);
+    }
 
+    private List<UnrealizedDetail> tcnudListToDetail(List<Tcnud> dataList, String minProfit, String maxProftit) {
         List<UnrealizedDetail> resultList = new ArrayList<>();
 
         for (Tcnud data : dataList) {
-            dataInMstmb = mstmbRepository.findByStock(data.getStock());
+            Mstmb dataInMstmb = mstmbRepository.findByStock(data.getStock());
             String profit = getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()),data.getCost());
-            if(profit.compareTo(request.getMinProfit()) > 0 && profit.compareTo(request.getMaxProfit()) < 0 ) {
+            if(profit.compareTo(minProfit) > 0 && profit.compareTo(maxProftit) < 0 ) {
                 resultList.add(new UnrealizedDetail(
                         data.getTradeDate(),
                         data.getBranchNo(),
@@ -114,43 +114,25 @@ public class TransactionService {
             }
         }
         return resultList;
-
     }
 
-    public UnrealizedDetailResponse getDetail(UnrealizedRequest request) {
-
-        UnrealizedDetailResponse response = new UnrealizedDetailResponse();
-        try {
-            response.setResultList(getDetailList(request));
-            response.setResponseCode("000");
-            response.setMessage("");
-        } catch (ChangeSetPersister.NotFoundException e) {
-            response.setResponseCode("001");
-            response.setMessage("查無符合資料");
-        } catch (InvalidPropertiesFormatException e) {
-            response.setResponseCode("002");
-            response.setMessage(checkParameter(request));
-        } catch (Exception e) {
-            response.setResponseCode("005");
-            response.setMessage("伺服器內部錯誤");
+    public List<UnrealizedDetail> getDetail(UnrealizedRequest request) throws TcnudNotFoundException{
+        if(request.getStock() == null) {
+            return getDetailList(request.getBranchNo(), request.getCustSeq(), request.getMinProfit(), request.getMaxProfit());
         }
-
-        return response;
+        else {
+            return getDetailList(request.getBranchNo(), request.getCustSeq(), request.getStock(), request.getMinProfit(), request.getMaxProfit());
+        }
     }
 
-    public SumUnrealizedProfit sumProfit(UnrealizedRequest request) throws InvalidPropertiesFormatException, ChangeSetPersister.NotFoundException {
+    public SumUnrealizedProfit sumProfit(UnrealizedRequest request) throws TcnudNotFoundException, MstmbNotFoundException {        
+        List<UnrealizedDetail> detailList = getDetail(request);
+
         Mstmb dataInMstmb = mstmbRepository.findByStock(request.getStock());
-        if (!checkParameter(request).equals("Ok")) {
-            return new SumUnrealizedProfit(null, "002", checkParameter(request));
+        if (dataInMstmb == null) {
+            throw new MstmbNotFoundException();
+            // return new SumUnrealizedProfit(null, "001", "查無符合資料");
         }
-        if(request.getStock()!=null) {
-            if (dataInMstmb == null) {
-                return new SumUnrealizedProfit(null, "001", "查無符合資料");
-            }
-        }
-
-
-        List<UnrealizedDetail> detailList = getDetailList(request);
 
         double sumFee = 0, sumCost = 0, sumMarketValue = 0, sumUnrealProfit = 0;
         int sumRemainQty = 0;
@@ -205,39 +187,5 @@ public class TransactionService {
         DecimalFormat df = new DecimalFormat("00.00%");
         return df.format(profitability);
     }
-    //優化
-    public String checkParameter(UnrealizedRequest request) {
-        if (request.getBranchNo().isEmpty()) {
-            return "分行不能為空值";
-        }
-        if (request.getCustSeq().isEmpty()) {
-            return "客戶帳號不能為空值";
-        }
-
-        return "Ok";
-    }
-    public String checkRequestParameter(AddBalanceRequest request) {
-        if (request.getBranchNo().isEmpty()) {
-            return "分行不能為空值";
-        }
-        if (request.getCustSeq().isEmpty()) {
-            return "客戶帳號不能為空值";
-        }
-
-        if (request.getTradeDate().isEmpty()) {
-            return "交易日期不能為空值";
-        }
-        if (request.getStock().isEmpty()) {
-            return "股票不能為空值";
-        }
-        if (request.getBuyPrice() == null) {
-            return "請輸入買進價格 !!!";
-        }
-
-        if (request.getQty() == null) {
-            return "請輸入股數 !!!";
-        }
-
-        return "Ok";
-    }
+    
 }
