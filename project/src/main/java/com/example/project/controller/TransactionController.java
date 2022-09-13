@@ -1,7 +1,9 @@
 package com.example.project.controller;
 
 import com.example.project.controller.dto.request.AddBalanceRequest;
+import com.example.project.controller.dto.request.SettlementRequest;
 import com.example.project.controller.dto.request.UnrealizedRequest;
+import com.example.project.controller.dto.resopnse.SettlementResultsResponse;
 import com.example.project.controller.dto.resopnse.SumUnrealizedProfit;
 import com.example.project.controller.dto.resopnse.UnrealizedDetail;
 import com.example.project.controller.dto.resopnse.UnrealizedDetailResponse;
@@ -22,22 +24,25 @@ public class TransactionController {
 
     @Autowired
     TransactionService transactionService;
-    
+
 
     @PostMapping("/detail")
-    public UnrealizedDetailResponse getDetailData(@RequestBody UnrealizedRequest request){
+    public UnrealizedDetailResponse getDetailData(@RequestBody UnrealizedRequest request) {
 
         UnrealizedDetailResponse response = new UnrealizedDetailResponse();
 
         try {
             String check = checkParameter(request);
-            if(!check.equals("Ok")) {
+            if (!check.equals("Ok")) {
                 throw new InvalidPropertiesFormatException(check);
             }
-
             response.setResultList(transactionService.getDetail(request));
             response.setResponseCode("000");
-            response.setMessage("");
+            if(response.getResultList().isEmpty()){
+                response.setMessage("獲利區間裡無符合資料");
+            }else{
+                response.setMessage("");
+            }
         } catch (TcnudNotFoundException e) {
             response.setResponseCode("001");
             response.setMessage("查無符合資料");
@@ -57,30 +62,34 @@ public class TransactionController {
         if (!checkParameter(request).equals("Ok")) {
             return new SumUnrealizedProfit(null, "002", checkParameter(request));
         }
-        
+
         return transactionService.sumProfit(request);
     }
 
     @PostMapping("/add")
-    public UnrealizedDetailResponse addBalanceData(@RequestBody AddBalanceRequest request){
+    public UnrealizedDetailResponse addBalanceData(@RequestBody AddBalanceRequest request) {
         try {
             String check = checkRequestParameter(request);
-            if(!check.equals("Ok")) {
+            if (!check.equals("Ok")) {
                 throw new InvalidPropertiesFormatException(check);
             }
 
             List<UnrealizedDetail> results = transactionService.addBalance(request);
             return new UnrealizedDetailResponse(results, "000", "");
 
-        } catch(MstmbNotFoundException e) {
+        } catch (MstmbNotFoundException e) {
             return new UnrealizedDetailResponse(null, "001", "查無符合資料");
-        } catch(InvalidPropertiesFormatException e) {
+        } catch (InvalidPropertiesFormatException e) {
             return new UnrealizedDetailResponse(null, "002", e.getErrorMessage());
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new UnrealizedDetailResponse(null, "005", "伺服器內部錯誤");
         }
     }
 
+    @PostMapping("/today")
+    public String queryTodaySettlement(@RequestBody SettlementRequest request){
+        return transactionService.todaySettlement(request);
+    }
 
     //優化
     public String checkParameter(UnrealizedRequest request) {
@@ -90,9 +99,13 @@ public class TransactionController {
         if (request.getCustSeq().isEmpty()) {
             return "客戶帳號不能為空值";
         }
+        if(request.getMaxProfit() < request.getMinProfit()){
+            return "輸入區間的格式錯誤";
+        }
 
         return "Ok";
     }
+
     public String checkRequestParameter(AddBalanceRequest request) {
         if (request.getBranchNo().isEmpty()) {
             return "分行不能為空值";

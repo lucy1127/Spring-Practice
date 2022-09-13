@@ -2,9 +2,13 @@ package com.example.project.service;
 
 
 import com.example.project.controller.dto.request.CreateMstmbRequest;
+import com.example.project.controller.dto.request.StockRequest;
+import com.example.project.controller.dto.resopnse.StockResponse;
 import com.example.project.model.MstmbRepository;
 import com.example.project.model.entity.Mstmb;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -71,6 +75,30 @@ public class MstmbService {
         double max = 500.99;
 
         return Math.round(Math.random()*(max-min+1)+min*100.0)/100.0;
+    }
+
+    @Cacheable(cacheNames = "mstmb_cache", key = "#request.getStock()")
+    public StockResponse getStockDetail(StockRequest request){
+        StockResponse response = new StockResponse();
+        Mstmb mstmb = mstmbRepository.findByStock(request.getStock());
+        if(null == mstmb){
+            response.setResponse("無此檔股票資訊");
+            return response;
+        }
+
+
+        response.setMstmb(mstmb);
+        response.setResponse("Success");
+
+
+        return response;
+    }
+
+    @CachePut(value = "mstmb_cache", key = "#request.getStock()")
+    public void updateCacheStock(StockRequest request){
+        Mstmb mstmb = mstmbRepository.findByStock(request.getStock());
+        mstmb.setNowPrice(makeCurPrice());
+        mstmbRepository.save(mstmb);
     }
 
 }

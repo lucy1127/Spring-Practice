@@ -18,4 +18,6 @@ public interface TcnudRepository  extends JpaRepository<Tcnud,Integer> {
     @Query(value = "select * from tcnud where if(?1 !='',branchNo=?1,1=1) and if(?2 !='',custSeq=?2,1=1)",nativeQuery = true)
     List<Tcnud> findByBranchNoAndCustSeq(String branchNo, String custSeq);
 
+    @Query(value = "select sum(cost) from tcnud where branchNo= ?1 AND custSeq= ?2 And tradeDate= ?3", nativeQuery = true)
+    Double getDeliveryFee(String branchNo, String custSeq,String tradeDate);
 }

@@ -21,7 +21,6 @@ import java.util.List;
 public class TcnudService {
     @Autowired
     private TcnudRepository tcnudRepository;
-
     public Tcnud createTchud(Hcmio hcmio){
 
         Tcnud tcnud = new Tcnud();

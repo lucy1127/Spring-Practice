@@ -2,11 +2,14 @@ package com.example.project.controller;
 
 
 import com.example.project.controller.dto.request.CreateMstmbRequest;
+import com.example.project.controller.dto.request.StockRequest;
 import com.example.project.controller.dto.resopnse.StatusResponse;
+import com.example.project.controller.dto.resopnse.StockResponse;
 import com.example.project.model.MstmbRepository;
 import com.example.project.model.entity.Mstmb;
 import com.example.project.service.MstmbService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +36,13 @@ public class MstmbController {
         String userCreate = this.mstmbService.createMstmb(request);
         return new StatusResponse(userCreate);
     }
-    @Scheduled(fixedRate = 500000)
+
+    @PostMapping("/stock")
+    public StockResponse getData(@RequestBody StockRequest request){
+        return mstmbService.getStockDetail(request);
+    }
+
+    @Scheduled(fixedRate = 5000)
     public void updatePrice(){
         for(Mstmb mstmb:mstmbRepository.findAll()){
             mstmb.setNowPrice(makeCurPrice());
@@ -41,7 +50,7 @@ public class MstmbController {
         }
     }
     public double makeCurPrice(){
-        double min = 10.99;
+        double min = 100.99;
         double max = 500.99;
         return Math.round(Math.random()*(max-min+1)+min*100.0)/100.0;
     }
