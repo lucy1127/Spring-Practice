@@ -3,7 +3,6 @@ package com.example.project.controller;
 import com.example.project.controller.dto.request.AddBalanceRequest;
 import com.example.project.controller.dto.request.SettlementRequest;
 import com.example.project.controller.dto.request.UnrealizedRequest;
-import com.example.project.controller.dto.resopnse.SettlementResultsResponse;
 import com.example.project.controller.dto.resopnse.SumUnrealizedProfit;
 import com.example.project.controller.dto.resopnse.UnrealizedDetail;
 import com.example.project.controller.dto.resopnse.UnrealizedDetailResponse;
@@ -38,9 +37,9 @@ public class TransactionController {
             }
             response.setResultList(transactionService.getDetail(request));
             response.setResponseCode("000");
-            if(response.getResultList().isEmpty()){
+            if (response.getResultList().isEmpty()) {
                 response.setMessage("獲利區間裡無符合資料");
-            }else{
+            } else {
                 response.setMessage("");
             }
         } catch (TcnudNotFoundException e) {
@@ -51,7 +50,7 @@ public class TransactionController {
             response.setMessage(e.getErrorMessage());
         } catch (Exception e) {
             response.setResponseCode("005");
-            response.setMessage("伺服器內部錯誤");
+            response.setMessage("伺服器忙碌中，請稍後嘗試");
         }
 
         return response;
@@ -59,11 +58,33 @@ public class TransactionController {
 
     @PostMapping("/sum")
     public SumUnrealizedProfit getSumData(@RequestBody UnrealizedRequest request) {
-        if (!checkParameter(request).equals("Ok")) {
-            return new SumUnrealizedProfit(null, "002", checkParameter(request));
+        SumUnrealizedProfit response = new SumUnrealizedProfit();
+
+        try {
+            String check = checkParameter(request);
+            if (!check.equals("Ok")) {
+                throw new InvalidPropertiesFormatException(check);
+            }
+            response.setResultList(transactionService.sumProfit(request));
+            response.setResponseCode("000");
+            if (response.getResultList().isEmpty()) {
+                response.setMessage("獲利區間裡無符合資料");
+            } else {
+                response.setMessage("");
+            }
+        } catch (TcnudNotFoundException e) {
+            response.setResponseCode("001");
+            response.setMessage("查無符合資料");
+        } catch (InvalidPropertiesFormatException e) {
+            response.setResponseCode("002");
+            response.setMessage(e.getErrorMessage());
+        } catch (Exception e) {
+            response.setResponseCode("005");
+            response.setMessage("伺服器忙碌中，請稍後嘗試");
         }
 
-        return transactionService.sumProfit(request);
+        return response;
+
     }
 
     @PostMapping("/add")
@@ -78,16 +99,16 @@ public class TransactionController {
             return new UnrealizedDetailResponse(results, "000", "");
 
         } catch (MstmbNotFoundException e) {
-            return new UnrealizedDetailResponse(null, "001", "查無符合資料");
+            return new UnrealizedDetailResponse(null, "001", "查無符合股票資料");
         } catch (InvalidPropertiesFormatException e) {
             return new UnrealizedDetailResponse(null, "002", e.getErrorMessage());
         } catch (Exception e) {
-            return new UnrealizedDetailResponse(null, "005", "伺服器內部錯誤");
+            return new UnrealizedDetailResponse(null, "005", "伺服器忙碌中，請稍後嘗試");
         }
     }
 
     @PostMapping("/today")
-    public String queryTodaySettlement(@RequestBody SettlementRequest request){
+    public String queryTodaySettlement(@RequestBody SettlementRequest request) {
         return transactionService.todaySettlement(request);
     }
 
@@ -96,12 +117,31 @@ public class TransactionController {
         if (request.getBranchNo().isEmpty()) {
             return "分行不能為空值";
         }
+        if (request.getBranchNo().length() > 4) {
+            return "分行最多為4碼";
+        }
         if (request.getCustSeq().isEmpty()) {
             return "客戶帳號不能為空值";
         }
-        if(request.getMaxProfit() < request.getMinProfit()){
-            return "輸入區間的格式錯誤";
+        if (request.getCustSeq().length() > 7) {
+            return "客戶帳號最多為7碼";
         }
+        if (request.getStock() != null) {
+            if (request.getStock().length() > 6) {
+                return "股票最多為6碼";
+            }
+        }
+        if (request.getMaxProfit() != null && request.getMinProfit() != null) {
+            if (request.getMaxProfit() < request.getMinProfit()) {
+                return "輸入區間的格式錯誤";
+            }
+        }
+        if (request.getMaxProfit() != null && request.getMinProfit() != null) {
+            if (request.getMinProfit().isNaN() || request.getMaxProfit().isNaN()) {
+                return "請輸入數字!!!";
+            }
+        }
+
 
         return "Ok";
     }
@@ -110,23 +150,46 @@ public class TransactionController {
         if (request.getBranchNo().isEmpty()) {
             return "分行不能為空值";
         }
+        if (request.getBranchNo().length() > 4) {
+            return "分行最多為4碼";
+        }
         if (request.getCustSeq().isEmpty()) {
             return "客戶帳號不能為空值";
         }
-
+        if (request.getCustSeq().length() > 7) {
+            return "客戶帳號最多為7碼";
+        }
         if (request.getTradeDate().isEmpty()) {
             return "交易日期不能為空值";
         }
+        if (request.getTradeDate() != null) {
+            if (request.getTradeDate().length() > 8) {
+                return "交易日期最多為8碼";
+            }
+        }
+
         if (request.getStock().isEmpty()) {
             return "股票不能為空值";
         }
+        if (request.getStock() != null) {
+            if (request.getStock().length() > 6) {
+                return "股票最多為6碼";
+            }
+        }
         if (request.getBuyPrice() == null) {
             return "請輸入買進價格 !!!";
+        }
+        if(request.getBuyPrice() != null && request.getBuyPrice().isNaN()){
+            return "請輸入數字 !!!";
         }
 
         if (request.getQty() == null) {
             return "請輸入股數 !!!";
         }
+        if (request.getQty() != null && request.getQty() > 1000000000 ) {
+            return "輸入太多股數 !!!";
+        }
+
 
         return "Ok";
     }

@@ -42,7 +42,12 @@ public class MstmbController {
         return mstmbService.getStockDetail(request);
     }
 
-    @Scheduled(fixedRate = 5000)
+    @PostMapping("/updatePrice")
+    public StockResponse updatePrice(@RequestBody StockRequest request){
+        return mstmbService.updateCacheStock(request);
+    }
+
+    @Scheduled(fixedRate = 500000)
     public void updatePrice(){
         for(Mstmb mstmb:mstmbRepository.findAll()){
             mstmb.setNowPrice(makeCurPrice());
@@ -52,7 +57,7 @@ public class MstmbController {
     public double makeCurPrice(){
         double min = 100.99;
         double max = 500.99;
-        return Math.round(Math.random()*(max-min+1)+min*100.0)/100.0;
+        return Math.round(((Math.random()*max)+min)*100.0)/100.0;
     }
 
 }

@@ -17,6 +17,6 @@ public class UnrealizedRequest implements Serializable {
     private String custSeq;
     private String stock;
 
-    private double minProfit;
-    private double maxProfit;
+    private Double minProfit;
+    private Double maxProfit;
 }

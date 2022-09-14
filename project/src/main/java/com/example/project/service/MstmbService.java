@@ -70,12 +70,6 @@ public class MstmbService {
 
         return "Create Success";
     }
-    public double makeCurPrice(){
-        double min = 10.99;
-        double max = 500.99;
-
-        return Math.round(Math.random()*(max-min+1)+min*100.0)/100.0;
-    }
 
     @Cacheable(cacheNames = "mstmb_cache", key = "#request.getStock()")
     public StockResponse getStockDetail(StockRequest request){
@@ -89,16 +83,31 @@ public class MstmbService {
 
         response.setMstmb(mstmb);
         response.setResponse("Success");
-
-
         return response;
     }
 
     @CachePut(value = "mstmb_cache", key = "#request.getStock()")
-    public void updateCacheStock(StockRequest request){
+    public StockResponse updateCacheStock(StockRequest request){
+        StockResponse response = new StockResponse();
         Mstmb mstmb = mstmbRepository.findByStock(request.getStock());
+
+        if(null == mstmb){
+            response.setResponse("無此檔股票資訊");
+            return response;
+        }
+
         mstmb.setNowPrice(makeCurPrice());
         mstmbRepository.save(mstmb);
+        response.setMstmb(mstmb);
+        response.setResponse("Success");
+        return response;
+    }
+
+    public double makeCurPrice(){
+        double min = 10.99;
+        double max = 500.99;
+
+        return Math.round(((Math.random()*max)+min)*100.0)/100.0;
     }
 
 }

@@ -3,9 +3,7 @@ package com.example.project.service;
 
 import com.example.project.controller.dto.request.AddBalanceRequest;
 import com.example.project.controller.dto.request.SettlementRequest;
-import com.example.project.controller.dto.request.StockRequest;
 import com.example.project.controller.dto.request.UnrealizedRequest;
-import com.example.project.controller.dto.resopnse.SettlementResultsResponse;
 import com.example.project.controller.dto.resopnse.SumUnrealizedProfit;
 import com.example.project.controller.dto.resopnse.UnrealizedDetail;
 import com.example.project.controller.dto.resopnse.UnrealizedProfit;
@@ -18,18 +16,16 @@ import com.example.project.model.entity.Hcmio;
 import com.example.project.model.entity.Mstmb;
 import com.example.project.model.entity.Tcnud;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 @EnableCaching
 @Service
 public class TransactionService {
@@ -53,7 +49,7 @@ public class TransactionService {
         if (dataInMstmb == null) {
             throw new MstmbNotFoundException();
         }
-        
+
         Hcmio hcmio = hcmioService.createHcmio(request);
         Tcnud tcnud = tcnudService.createTchud(hcmio);
 
@@ -73,34 +69,36 @@ public class TransactionService {
                 tcnud.getCost(),
                 getMarketValue(dataInMstmb.getNowPrice(), tcnud.getQty()),
                 getUnrealProfit(dataInMstmb.getNowPrice(), tcnud.getQty(), tcnud.getCost()),
-                String.format("%.2f",getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), tcnud.getQty(), tcnud.getCost()),tcnud.getCost()))+"%"
+                String.format("%.2f", getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), tcnud.getQty(), tcnud.getCost()), tcnud.getCost())) + "%"
         ));
 
         return results;
     }
-    public List<UnrealizedDetail> getDetailList(String branchNo, String custSeq, double minProfit, double maxProfit) {
+
+    public List<UnrealizedDetail> getDetailList(String branchNo, String custSeq, Double minProfit, Double maxProfit) {
         List<Tcnud> dataList = tcnudRepository.findByBranchNoAndCustSeq(branchNo, custSeq);
-        if(dataList.isEmpty()) {
+        if (dataList.isEmpty()) {
             throw new TcnudNotFoundException();
         }
 
         return tcnudListToDetail(dataList, minProfit, maxProfit);
     }
-    public List<UnrealizedDetail> getDetailList(String branchNo, String custSeq, String stock, double minProfit, double maxProfit) {
+
+    public List<UnrealizedDetail> getDetailList(String branchNo, String custSeq, String stock, Double minProfit, Double maxProfit) {
         List<Tcnud> dataList = tcnudRepository.findByBranchNoAndCustSeqAndStock(branchNo, custSeq, stock);
-        if(dataList.isEmpty()) {
+        if (dataList.isEmpty()) {
             throw new TcnudNotFoundException();
         }
-        
+
         return tcnudListToDetail(dataList, minProfit, maxProfit);
     }
-    private List<UnrealizedDetail> tcnudListToDetail(List<Tcnud> dataList, double minProfit, double maxProfit) {
-        List<UnrealizedDetail> resultList = new ArrayList<>();
 
+    private List<UnrealizedDetail> tcnudListToDetail(List<Tcnud> dataList, Double minProfit, Double maxProfit) {
+        List<UnrealizedDetail> resultList = new ArrayList<>();
         for (Tcnud data : dataList) {
             Mstmb dataInMstmb = mstmbRepository.findByStock(data.getStock());
-            double profit = getProfitability( getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost());
-            if(profit > minProfit && profit < maxProfit ) {
+            double profit = getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost());
+            if (minProfit == null && maxProfit == null || minProfit.equals(maxProfit) ) {
                 resultList.add(new UnrealizedDetail(
                         data.getTradeDate(),
                         data.getBranchNo(),
@@ -116,23 +114,44 @@ public class TransactionService {
                         data.getCost(),
                         getMarketValue(dataInMstmb.getNowPrice(), data.getQty()),
                         getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()),
-                        String.format("%.2f",getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost()))+"%"
+                        String.format("%.2f", getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost())) + "%"
                 ));
+            } else {
+                if (profit > minProfit && profit < maxProfit) {
+                    resultList.add(new UnrealizedDetail(
+                            data.getTradeDate(),
+                            data.getBranchNo(),
+                            data.getCustSeq(),
+                            data.getDocSeq(),
+                            data.getStock(),
+                            dataInMstmb.getStockName(),
+                            data.getBuyPrice(),
+                            dataInMstmb.getNowPrice(),
+                            data.getQty(),
+                            data.getRemainQty(),
+                            data.getFee(),
+                            data.getCost(),
+                            getMarketValue(dataInMstmb.getNowPrice(), data.getQty()),
+                            getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()),
+                            String.format("%.2f", getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost())) + "%"
+                    ));
+                }
             }
         }
         return resultList;
     }
-    public List<UnrealizedDetail> getDetail(UnrealizedRequest request) throws TcnudNotFoundException{
-        if(request.getStock() == null) {
+
+    public List<UnrealizedDetail> getDetail(UnrealizedRequest request) throws TcnudNotFoundException {
+        if (request.getStock() == null) {
             return getDetailList(request.getBranchNo(), request.getCustSeq(), request.getMinProfit(), request.getMaxProfit());
-        }
-        else {
+        } else {
             return getDetailList(request.getBranchNo(), request.getCustSeq(), request.getStock(), request.getMinProfit(), request.getMaxProfit());
         }
     }
-    public SumUnrealizedProfit sumProfit(UnrealizedRequest request) throws TcnudNotFoundException, MstmbNotFoundException {        
+
+    public List<UnrealizedProfit> sumProfit(UnrealizedRequest request) throws TcnudNotFoundException, MstmbNotFoundException {
         Map<String, List<UnrealizedDetail>> detailMap = getDetail(request).stream().collect(
-            Collectors.groupingBy(UnrealizedDetail::getStock)
+                Collectors.groupingBy(UnrealizedDetail::getStock)
         );
 
         List<UnrealizedProfit> results = new ArrayList<>();
@@ -142,7 +161,7 @@ public class TransactionService {
             List<UnrealizedDetail> stockDetail = entry.getValue();
 
             Mstmb dataInMstmb = mstmbRepository.findByStock(stock);
-            
+
             // 待討論....
             if (dataInMstmb == null) {
                 continue;
@@ -150,7 +169,7 @@ public class TransactionService {
 
             double sumFee = 0, sumCost = 0, sumMarketValue = 0, sumUnrealProfit = 0;
             int sumRemainQty = 0;
-    
+
             for (UnrealizedDetail data : stockDetail) {
                 sumRemainQty += data.getRemainQty();
                 sumFee += data.getFee();
@@ -158,9 +177,9 @@ public class TransactionService {
                 sumMarketValue += data.getMarketValue();
                 sumUnrealProfit += data.getUnrealProfit();
             }
-    
+
             UnrealizedProfit result = new UnrealizedProfit();
-    
+
             result.setStock(dataInMstmb.getStock());
             result.setStockName(dataInMstmb.getStockName());
             result.setNowPrice(dataInMstmb.getNowPrice());
@@ -170,15 +189,15 @@ public class TransactionService {
             result.setSumMarketValue(sumMarketValue);
             result.setSumUnrealProfit(sumUnrealProfit);
             result.setDetailList(stockDetail);
-            result.setSumProfitability(String.format("%.2f",getProfitability(result.getSumUnrealProfit(),result.getSumCost()))+"%");
-    
+            result.setSumProfitability(String.format("%.2f", getProfitability(result.getSumUnrealProfit(), result.getSumCost())) + "%");
+
             results.add(result);
         }
 
-        return new SumUnrealizedProfit(results, "000", "");
+        return results;
     }
 
-    public String todaySettlement(SettlementRequest request){
+    public String todaySettlement(SettlementRequest request) {
 
         Calendar today = Calendar.getInstance();
         if (1 == today.get(Calendar.DAY_OF_WEEK) || 7 == today.get(Calendar.DAY_OF_WEEK)) {
@@ -204,9 +223,6 @@ public class TransactionService {
         return "今日需付交割金為 : " + deliveryFee;
     }
 
-
-
-
     public Double getMarketValue(double price, int qty) {
         double marketValue, fee, amt, tax;
         amt = Math.floor(price * qty);
@@ -216,6 +232,7 @@ public class TransactionService {
 
         return marketValue;
     }
+
     public Double getUnrealProfit(double price, int qty, double cost) {
         double unrealProfit, fee, amt, tax;
         amt = Math.floor(price * qty);
@@ -224,11 +241,12 @@ public class TransactionService {
         unrealProfit = (amt - fee - tax) - cost;
         return unrealProfit;
     }
-    public double getProfitability(double unrealProfit,double cost){
+
+    public double getProfitability(double unrealProfit, double cost) {
         double profitability;
-        profitability = (unrealProfit/cost) * 100;
+        profitability = (unrealProfit / cost) * 100;
 
         return profitability;
     }
-    
+
 }
