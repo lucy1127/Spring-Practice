@@ -96,47 +96,46 @@ public class TransactionService {
         for (Tcnud data : dataList) {
             Mstmb dataInMstmb = mstmbRepository.findByStock(data.getStock());
             double profit = getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost());
-            if (minProfit == null && maxProfit == null ) {
-                resultList.add(new UnrealizedDetail(
-                        data.getTradeDate(),
-                        data.getBranchNo(),
-                        data.getCustSeq(),
-                        data.getDocSeq(),
-                        data.getStock(),
-                        dataInMstmb.getStockName(),
-                        data.getBuyPrice(),
-                        dataInMstmb.getNowPrice(),
-                        data.getQty(),
-                        data.getRemainQty(),
-                        data.getFee(),
-                        data.getCost(),
-                        getMarketValue(dataInMstmb.getNowPrice(), data.getQty()),
-                        getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()),
-                        String.format("%.2f", getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost())) + "%"
-                ));
-            } else {
+            UnrealizedDetail unrealizedDetail = new UnrealizedDetail(
+                    data.getTradeDate(),
+                    data.getBranchNo(),
+                    data.getCustSeq(),
+                    data.getDocSeq(),
+                    data.getStock(),
+                    dataInMstmb.getStockName(),
+                    data.getBuyPrice(),
+                    dataInMstmb.getNowPrice(),
+                    data.getQty(),
+                    data.getRemainQty(),
+                    data.getFee(),
+                    data.getCost(),
+                    getMarketValue(dataInMstmb.getNowPrice(), data.getQty()),
+                    getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()),
+                    String.format("%.2f", getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost())) + "%"
+            );
 
-                if (profit >= minProfit && profit <= maxProfit) {
-                    resultList.add(new UnrealizedDetail(
-                            data.getTradeDate(),
-                            data.getBranchNo(),
-                            data.getCustSeq(),
-                            data.getDocSeq(),
-                            data.getStock(),
-                            dataInMstmb.getStockName(),
-                            data.getBuyPrice(),
-                            dataInMstmb.getNowPrice(),
-                            data.getQty(),
-                            data.getRemainQty(),
-                            data.getFee(),
-                            data.getCost(),
-                            getMarketValue(dataInMstmb.getNowPrice(), data.getQty()),
-                            getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()),
-                            String.format("%.2f", getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost())) + "%"
-                    ));
-                }
+            if (minProfit == null && maxProfit == null ) {
+                resultList.add(unrealizedDetail);
+                continue;
             }
+
+            if (minProfit == null && maxProfit != null) {
+                if (profit <= maxProfit) resultList.add(unrealizedDetail);
+                continue;
+            }
+
+            if (minProfit != null && maxProfit == null) {
+                if (profit >= minProfit) resultList.add(unrealizedDetail);
+                continue;
+            }
+
+            if (profit >= minProfit && profit <= maxProfit) {
+                resultList.add(unrealizedDetail);
+            }
+
+
         }
+
         return resultList;
     }
 
