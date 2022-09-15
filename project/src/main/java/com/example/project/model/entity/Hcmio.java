@@ -18,8 +18,7 @@ import java.io.Serializable;
 @Table(name = "hcmio")
 @IdClass(Hcmio.HcmioId.class) //複合主鍵
 @JsonPropertyOrder({ "tradeDate", "branchNo", "custSeq", "docSeq", "stock","bsType","price","qty","amt","fee","tax","stinTax","netAmt","modDate","modTime","modUser"})
-public class Hcmio implements Serializable {
-//    private static final long serialVersionUID = 1L; //???
+public class Hcmio{
 
     @Id
     @Column(name="TradeDate")
@@ -74,7 +73,6 @@ public class Hcmio implements Serializable {
     private String modUser = "Lucy";//異動人員
 
     public static class HcmioId implements Serializable {
-     //   private static final long serialVersionUID = 1L;
 
         private String tradeDate;
         private String branchNo;

@@ -23,8 +23,6 @@ public class MstmbController {
 
     @Autowired
     MstmbService mstmbService;
-    @Autowired
-    MstmbRepository mstmbRepository;
 
     @GetMapping()
     public List<Mstmb> getDataList(){
@@ -47,17 +45,5 @@ public class MstmbController {
         return mstmbService.updateCacheStock(request);
     }
 
-    @Scheduled(fixedRate = 500000)
-    public void updatePrice(){
-        for(Mstmb mstmb:mstmbRepository.findAll()){
-            mstmb.setNowPrice(makeCurPrice());
-            mstmbRepository.save(mstmb);
-        }
-    }
-    public double makeCurPrice(){
-        double min = 100.99;
-        double max = 500.99;
-        return Math.round(((Math.random()*max)+min)*100.0)/100.0;
-    }
 
 }

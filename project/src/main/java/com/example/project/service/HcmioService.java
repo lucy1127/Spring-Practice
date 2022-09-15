@@ -6,7 +6,6 @@ import com.example.project.model.HcmioRepository;
 import com.example.project.model.entity.Hcmio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +16,6 @@ public class HcmioService {
     @Autowired //將該元件初始化後自動帶入
     private HcmioRepository hcmioRepository;
 
-    @Transactional
     public Hcmio createHcmio(AddBalanceRequest request){
 
         //hcmio

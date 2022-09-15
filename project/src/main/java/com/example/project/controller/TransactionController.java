@@ -32,7 +32,7 @@ public class TransactionController {
 
         try {
             String check = checkParameter(request);
-            if (!check.equals("Ok")) {
+            if (!check.equals("OK")) {
                 throw new InvalidPropertiesFormatException(check);
             }
             response.setResultList(transactionService.getDetail(request));
@@ -62,7 +62,7 @@ public class TransactionController {
 
         try {
             String check = checkParameter(request);
-            if (!check.equals("Ok")) {
+            if (!check.equals("OK")) {
                 throw new InvalidPropertiesFormatException(check);
             }
             response.setResultList(transactionService.sumProfit(request));
@@ -91,7 +91,7 @@ public class TransactionController {
     public UnrealizedDetailResponse addBalanceData(@RequestBody AddBalanceRequest request) {
         try {
             String check = checkRequestParameter(request);
-            if (!check.equals("Ok")) {
+            if (!check.equals("OK")) {
                 throw new InvalidPropertiesFormatException(check);
             }
 
@@ -143,7 +143,7 @@ public class TransactionController {
         }
 
 
-        return "Ok";
+        return "OK";
     }
 
     public String checkRequestParameter(AddBalanceRequest request) {
@@ -191,6 +191,6 @@ public class TransactionController {
         }
 
 
-        return "Ok";
+        return "OK";
     }
 }

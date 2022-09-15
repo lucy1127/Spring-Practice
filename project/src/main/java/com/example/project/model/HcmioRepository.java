@@ -10,6 +10,5 @@ import java.util.List;
 
 @Repository
 public interface HcmioRepository extends JpaRepository<Hcmio,Integer> {
-
     Hcmio findFirstByOrderByDocSeqDesc();
 }

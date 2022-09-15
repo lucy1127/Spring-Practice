@@ -4,7 +4,6 @@ package com.example.project.service;
 import com.example.project.controller.dto.request.AddBalanceRequest;
 import com.example.project.controller.dto.request.SettlementRequest;
 import com.example.project.controller.dto.request.UnrealizedRequest;
-import com.example.project.controller.dto.resopnse.SumUnrealizedProfit;
 import com.example.project.controller.dto.resopnse.UnrealizedDetail;
 import com.example.project.controller.dto.resopnse.UnrealizedProfit;
 import com.example.project.controller.error.MstmbNotFoundException;
@@ -18,6 +17,7 @@ import com.example.project.model.entity.Tcnud;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,11 +38,9 @@ public class TransactionService {
     private TcnudRepository tcnudRepository;
     @Autowired
     private MstmbRepository mstmbRepository;
-
     @Autowired
     private HolidayRepository holidayRepository;
-
-
+    @Transactional(rollbackFor = Exception.class)
     public List<UnrealizedDetail> addBalance(AddBalanceRequest request) {
 
         Mstmb dataInMstmb = mstmbRepository.findByStock(request.getStock());
@@ -98,7 +96,7 @@ public class TransactionService {
         for (Tcnud data : dataList) {
             Mstmb dataInMstmb = mstmbRepository.findByStock(data.getStock());
             double profit = getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost());
-            if (minProfit == null && maxProfit == null || minProfit.equals(maxProfit) ) {
+            if (minProfit == null && maxProfit == null ) {
                 resultList.add(new UnrealizedDetail(
                         data.getTradeDate(),
                         data.getBranchNo(),
@@ -117,7 +115,8 @@ public class TransactionService {
                         String.format("%.2f", getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost())) + "%"
                 ));
             } else {
-                if (profit > minProfit && profit < maxProfit) {
+
+                if (profit >= minProfit && profit <= maxProfit) {
                     resultList.add(new UnrealizedDetail(
                             data.getTradeDate(),
                             data.getBranchNo(),
@@ -149,7 +148,7 @@ public class TransactionService {
         }
     }
 
-    public List<UnrealizedProfit> sumProfit(UnrealizedRequest request) throws TcnudNotFoundException, MstmbNotFoundException {
+    public List<UnrealizedProfit> sumProfit(UnrealizedRequest request) throws TcnudNotFoundException {
         Map<String, List<UnrealizedDetail>> detailMap = getDetail(request).stream().collect(
                 Collectors.groupingBy(UnrealizedDetail::getStock)
         );
@@ -162,10 +161,6 @@ public class TransactionService {
 
             Mstmb dataInMstmb = mstmbRepository.findByStock(stock);
 
-            // 待討論....
-            if (dataInMstmb == null) {
-                continue;
-            }
 
             double sumFee = 0, sumCost = 0, sumMarketValue = 0, sumUnrealProfit = 0;
             int sumRemainQty = 0;
