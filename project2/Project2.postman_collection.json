@@ -1,0 +1,44 @@
+{
+	"info": {
+		"_postman_id": "007a2978-4784-4bfa-9ea1-d2ee6f25cfe6",
+		"name": "Project2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22635222"
+	},
+	"item": [
+		{
+			"name": "getXMLData",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "getStock",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/mstmb/stock?=6214",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"mstmb",
+						"stock"
+					],
+					"query": [
+						{
+							"key": null,
+							"value": "6214"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

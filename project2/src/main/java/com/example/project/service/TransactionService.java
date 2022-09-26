@@ -1,6 +1,7 @@
 package com.example.project.service;
 
 
+import com.example.project.controller.MstmbController;
 import com.example.project.controller.dto.request.AddBalanceRequest;
 import com.example.project.controller.dto.request.SettlementRequest;
 import com.example.project.controller.dto.request.UnrealizedRequest;
@@ -11,9 +12,7 @@ import com.example.project.controller.error.TcnudNotFoundException;
 import com.example.project.model.HolidayRepository;
 import com.example.project.model.MstmbRepository;
 import com.example.project.model.TcnudRepository;
-import com.example.project.model.entity.Hcmio;
-import com.example.project.model.entity.Mstmb;
-import com.example.project.model.entity.Tcnud;
+import com.example.project.model.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
@@ -38,6 +37,8 @@ public class TransactionService {
     private TcnudRepository tcnudRepository;
     @Autowired
     private MstmbRepository mstmbRepository;
+    @Autowired
+    private MstmbService mstmbService;
     @Autowired
     private HolidayRepository holidayRepository;
     @Transactional(rollbackFor = Exception.class)
@@ -94,24 +95,24 @@ public class TransactionService {
     private List<UnrealizedDetail> tcnudListToDetail(List<Tcnud> dataList, Double minProfit, Double maxProfit) {
         List<UnrealizedDetail> resultList = new ArrayList<>();
         for (Tcnud data : dataList) {
-            Mstmb dataInMstmb = mstmbRepository.findByStock(data.getStock());
-            double profit = getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost());
+            Symbols dataInMstmb = mstmbService.getStock(data.getStock());
+            double profit = getProfitability(getUnrealProfit(dataInMstmb.getSymbolList().get(0).getDealprice(), data.getQty(), data.getCost()), data.getCost());
             UnrealizedDetail unrealizedDetail = new UnrealizedDetail(
                     data.getTradeDate(),
                     data.getBranchNo(),
                     data.getCustSeq(),
                     data.getDocSeq(),
                     data.getStock(),
-                    dataInMstmb.getStockName(),
+                    dataInMstmb.getSymbolList().get(0).getShortname(),
                     data.getBuyPrice(),
-                    dataInMstmb.getNowPrice(),
+                    dataInMstmb.getSymbolList().get(0).getDealprice(),
                     data.getQty(),
                     data.getRemainQty(),
                     data.getFee(),
                     data.getCost(),
-                    getMarketValue(dataInMstmb.getNowPrice(), data.getQty()),
-                    getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()),
-                    String.format("%.2f", getProfitability(getUnrealProfit(dataInMstmb.getNowPrice(), data.getQty(), data.getCost()), data.getCost())) + "%"
+                    getMarketValue(dataInMstmb.getSymbolList().get(0).getDealprice(), data.getQty()),
+                    getUnrealProfit(dataInMstmb.getSymbolList().get(0).getDealprice(), data.getQty(), data.getCost()),
+                    String.format("%.2f", getProfitability(getUnrealProfit(dataInMstmb.getSymbolList().get(0).getDealprice(), data.getQty(), data.getCost()), data.getCost())) + "%"
             );
 
             if (minProfit == null && maxProfit == null ) {
@@ -158,7 +159,7 @@ public class TransactionService {
             String stock = entry.getKey();
             List<UnrealizedDetail> stockDetail = entry.getValue();
 
-            Mstmb dataInMstmb = mstmbRepository.findByStock(stock);
+            Symbols dataInMstmb = mstmbService.getStock(stock);
 
 
             double sumFee = 0, sumCost = 0, sumMarketValue = 0, sumUnrealProfit = 0;
@@ -174,9 +175,9 @@ public class TransactionService {
 
             UnrealizedProfit result = new UnrealizedProfit();
 
-            result.setStock(dataInMstmb.getStock());
-            result.setStockName(dataInMstmb.getStockName());
-            result.setNowPrice(dataInMstmb.getNowPrice());
+            result.setStock(dataInMstmb.getSymbolList().get(0).getId());
+            result.setStockName(dataInMstmb.getSymbolList().get(0).getShortname());
+            result.setNowPrice(dataInMstmb.getSymbolList().get(0).getDealprice());
             result.setSumRemainQty(sumRemainQty);
             result.setSumFee(sumFee);
             result.setSumCost(sumCost);

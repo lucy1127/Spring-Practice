@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"stock\": \"1166\",\r\n    \"stockName\":\"www\",\r\n    \"marketType\": \"T\"\r\n}",
+					"raw": "{\r\n    \"stock\": \"6214\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -21,14 +21,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/mstmb",
+					"raw": "http://localhost:8080/mstmb/stock",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"mstmb"
+						"mstmb",
+						"stock"
 					]
 				}
 			},
@@ -70,6 +71,15 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"branchNo\":\"F62S\",\r\n    \"custSeq\":\"00\",\r\n    \"stock\":\"6214\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "http://localhost:8080/api/v1/unreal/sum",
 					"protocol": "http",
@@ -94,7 +104,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"tradeDate\":\"20220909\",\r\n    \"branchNo\":\"F62Z\",\r\n    \"custSeq\":\"04\",\r\n    \"stock\":\"1898\",\r\n    \"buyPrice\":50,\r\n    \"qty\":1000\r\n}",
+					"raw": "{\r\n    \"tradeDate\":\"20220830\",\r\n    \"branchNo\":\"F62S\",\r\n    \"custSeq\":\"00\",\r\n    \"docSeq\":\"ZZ005\",\r\n    \"stock\":\"6214\",\r\n    \"buyPrice\":99,\r\n    \"qty\":2000\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -125,7 +135,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": " {\r\n      \"branchNo\":\"F62Z\",\r\n      \"custSeq\":\"04\"\r\n  }",
+					"raw": " {\r\n      \"branchNo\":\"F62S\",\r\n      \"custSeq\":\"00\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
