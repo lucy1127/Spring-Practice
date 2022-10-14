@@ -1,0 +1,187 @@
+{
+	"info": {
+		"_postman_id": "dc03ab80-9c3e-4745-a829-b59ea3fb3a70",
+		"name": "Spring1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22635222"
+	},
+	"item": [
+		{
+			"name": "createData",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\":\"1\",\r\n    \"memberCode\":\"F62Z\",\r\n    \"kacType\":\"1\",\r\n    \"bankCode\":\"899\",\r\n    \"currency\":\"TWD\",\r\n    \"pvType\":\"1\",\r\n    \"account\":\"1234567\",\r\n    \"accountList\":[\r\n        {\"accNo\":\"001\",\"price\":200},\r\n        {\"accNo\":\"002\",\"price\":300}\r\n    ],\r\n    \"reason\":\"Nothing now...\",\r\n    \"contactName\":\"Lucy\",\r\n    \"contactPhone\":\"09123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/spring1/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"spring1",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getDataList",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/spring1/getList",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"spring1",
+						"getList"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateData",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\":\"MGI20221003133800956\",\r\n    \"type\":\"1\",\r\n    \"memberCode\":\"F62Z\",\r\n    \"kacType\":\"2\",\r\n    \"bankCode\":\"899\",\r\n    \"currency\":\"TWD\",\r\n    \"pvType\":\"1\",\r\n    \"account\":\"1234567\",\r\n    \"amt\":100,\r\n    \"reason\":\"Nothing now...\",\r\n    \"contactName\":\"Lucy\",\r\n    \"contactPhone\":\"09123\"\r\n}\r\n    // \"accountList\":[\r\n    //     {\"accNo\":\"01\",\"price\":100},\r\n    //     {\"accNo\":\"03\",\"price\":300}\r\n    // ],\r\n    //  \"amt\":100,",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/spring1/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"spring1",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteData",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\":\"MGI20220929133736076\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/spring1/delete",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"spring1",
+						"delete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getCashiData",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\":\"MGI20220930104149343\",\r\n    \"accno\":null,\r\n    \"currency\":null\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/spring1/getCashiList",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"spring1",
+						"getCashiList"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getMgniData",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": null,\r\n    \"memberCode\": \"F62Z\",\r\n    \"bankCode\": \"899\",\r\n    \"bicaccNo\": null,\r\n    \"contactName\": \"Lucy\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/spring1/getMgniList",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"spring1",
+						"getMgniList"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
